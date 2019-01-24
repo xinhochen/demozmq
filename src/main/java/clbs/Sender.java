@@ -40,12 +40,12 @@ public class Sender implements Closeable {
 
     public static void main(String[] args) {
         Sender sender = new Sender("sender", "tcp://192.168.24.127:5211");
-        int count = 0;
+        int count = 1;
         long start = System.nanoTime();
         while (!Thread.currentThread().isInterrupted()) {
             sender.sendMsg("#" + count++, "test");
             //sender.sendMsg("#", "test");
-            if (count == 200000) {
+            if (count > 200000) {
                 break;
             }
         }

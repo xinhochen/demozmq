@@ -20,6 +20,8 @@ public class SimpleReceiver implements Runnable {
         this.context = new ZContext(1);
         this.host = host;
         this.socket = createSocket();
+        this.socket.setLinger(1000);
+        this.socket.setIdentity(name.getBytes());
         System.out.println("receiver connected.");
     }
 
@@ -33,15 +35,19 @@ public class SimpleReceiver implements Runnable {
 
     @Override
     public void run() {
+        int count = 0;
         ZMsg msg;
         while (!Thread.currentThread().isInterrupted()) {
             msg = ZMsg.recvMsg(socket);
             if (msg == null) {
                 break;
             }
-            msg.dump(System.out);
+            //msg.dump(System.out);
+            count++;
+            System.out.println(count);
         }
         this.context.destroy();
+        System.out.println("exit.");
     }
 
     public static void main(String[] args) {
