@@ -14,15 +14,17 @@ public class SimpleReceiver implements Runnable {
     private final ZContext context;
     private final String host;
     private ZMQ.Socket socket;
+    private final int total;
 
-    public SimpleReceiver(String name, String host) {
+    public SimpleReceiver(String name, String host, int total) {
         this.name = name;
         this.context = new ZContext(1);
         this.host = host;
         this.socket = createSocket();
         this.socket.setLinger(1000);
         this.socket.setIdentity(name.getBytes());
-        System.out.println("receiver connected.");
+        this.total = total;
+        System.out.println("receiver " + name + " connected.");
     }
 
     private ZMQ.Socket createSocket() {
@@ -37,21 +39,26 @@ public class SimpleReceiver implements Runnable {
     public void run() {
         int count = 0;
         ZMsg msg;
+        long start = System.nanoTime();
         while (!Thread.currentThread().isInterrupted()) {
             msg = ZMsg.recvMsg(socket);
             if (msg == null) {
                 break;
             }
-            //msg.dump(System.out);
+            msg.dump(System.out);
             count++;
-            System.out.println(count);
+            //System.out.println(name + " receive: " + count);
+            if (count == total) {
+                break;
+            }
         }
         this.context.destroy();
-        System.out.println("exit.");
+        // System.out.println(name + " exit.");
+        System.out.println("Duration: " + name + " " + (System.nanoTime() - start) / 1e9);
     }
 
     public static void main(String[] args) {
-        SimpleReceiver receiver = new SimpleReceiver("test", "tcp://192.168.24.127:5210");
+        SimpleReceiver receiver = new SimpleReceiver("test", "tcp://192.168.24.127:5210", 100);
         receiver.run();
     }
 }

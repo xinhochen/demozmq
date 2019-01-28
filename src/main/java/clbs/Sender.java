@@ -32,6 +32,11 @@ public class Sender implements Closeable {
         //this.socket.send(message);
     }
 
+    public void sendErrorMsg(String message, String address) {
+        ZMsg msg = ZMsg.newStringMsg(message);
+        msg.send(this.socket);
+    }
+
     @Override
     public void close() {
         this.socket.close();
@@ -43,12 +48,15 @@ public class Sender implements Closeable {
         int count = 1;
         long start = System.nanoTime();
         while (!Thread.currentThread().isInterrupted()) {
-            sender.sendMsg("#" + count++, "test");
+            sender.sendMsg("#####" + count++, "test");
             //sender.sendMsg("#", "test");
-            if (count > 200000) {
+            if (count > 1) {
                 break;
             }
         }
+        sender.sendMsg("#1", "test");
+        sender.sendErrorMsg("#1", "test");
+        System.out.println("Send count: " + (count - 1));
         System.out.println("Duration: " + (System.nanoTime() - start) / 1e9);
         sender.close();
     }
